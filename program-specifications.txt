@@ -1,0 +1,49 @@
+    - <project-name>
+
+    -- objectives -- 
+  - device initialization
+      - turn off watchdog timer
+      - oscillator
+          - turn off external oscillator in external oscillator control 
+            register (OSCXCN)
+          - use internal oscillator at 16MHz in internal oscillator control 
+            register (OSCICN)
+      - port
+          - enable cross-bar (XBARE) for output and weak pull-ups
+          - port 0 
+            configure P0.0-7 as push-pull and intialize outputs to low.
+          - port 1
+            configure P1.0-3 as push-pull and leave P1.4-7 as open-drain. keep
+            P1.0-3 outputs in its default high, make sure P1.4-7 are in input 
+            mode (high). 
+
+  - keypad 
+    - write readkeypad routine to read in the number pressed on the keypad 
+      matrix. 
+    - row_1-4 (R1-4) are configured as push-pull outputs (P1.0-3), and col_1-3
+      (C1-3) are configured as open-drain inputs (P1.4-6).
+
+  - 7-segment display
+    - write displaynumber routine to display number the pressed number on the 
+      keypad. this will use port 0 (P0.0-6) to toggle LEDs (direct driven).
+  
+  - main keypad routine
+    the main will initialization the device then enter infinite loop to 
+    read keypad input and display on 7-seg.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
