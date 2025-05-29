@@ -13,8 +13,12 @@
         extern void vOSC_Init(void); 
         extern void vPort_Init(void); 
         extern void vTimer2_Init(void); 
+        extern void vADC0_Init(void); 
 
     #endif
 
 #endif
+
+
+
 

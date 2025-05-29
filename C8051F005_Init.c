@@ -20,6 +20,7 @@ void vWatchdog(bit status);
 void vOSC_Init(void); 
 void vPort_Init(void); 
 void vTimer2_Init(void); 
+void vADC0_Init(void); 
 
 /*
     routines 
@@ -97,3 +98,32 @@ void vTimer2_Init(void){
     ET2=0;                              // disable T2 interrupts if enabled
 
 }
+
+/*
+    vADC0_Init: 
+    enable internal temperature sensor (TEMPE) and provide bias and reference  
+    voltage (BIASE and REFBE) for the ADC. 
+    select temperature sensor from the analog multiplexer (AMUX0SL). 
+    SAR conversion clock = 2 system clocks and amplifier gain of unity (1). 
+    make the ADC0 data left-justified and activate ADC0 to make it ready for 
+    conversion. 
+
+    parameters: none 
+    return    : none 
+
+*/
+void vADC0_Init(void){
+
+    REF0CN|=0x07;                       // TEMPE=1, BIASE=1 and REFBE=1 
+
+    AMX0SL|=0x08;                       // AMXAD3-0=1000=1xxx (TEMP SENSOR) 
+
+    // ADCSC2-0=001 (SAR conv. clk = 2 SYSCLKs), AMPGN2-0=000 (Gain=1) 
+    ADC0CF&=~0x40; 
+
+    ADC0CN|=0x81;                       // ADCEN=1 and ADLJST=1 
+
+} 
+
+
+
