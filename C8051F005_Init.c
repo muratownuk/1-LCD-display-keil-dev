@@ -20,12 +20,6 @@ void vWatchdog(bit status);
 void vOSC_Init(void); 
 void vPort_Init(void); 
 void vTimer2_Init(void); 
-void vUART_Init(void); 
-
-/*
-    global variables 
-*/
-unsigned char TX_Ready; 
 
 /*
     routines 
@@ -52,8 +46,8 @@ void vWatchdog(bit status){
 
 /*
     vOSC_Init: 
-    use internal oscillator (OSCICN) at 16MHz (SYSCLK) and turn off external 
-    oscillator (OSCXCN) 
+    use internal oscillator (OSCICN) at 2MHz (default-SYSCLK) and turn off 
+    external oscillator (OSCXCN) 
 
     parameters: none 
     return    : none 
@@ -62,63 +56,44 @@ void vOSC_Init(void){
 
     // XOSCMD2-0=000 (off) and XFCN2-0=000 (default) 
     OSCXCN&=~0x70;
-    // MSCLKE=0, CLKSL=0 (internal), IOSCEN=1 (default) and IFCN1-0=11 16MHz 
-    OSCICN|=0x03; 
 
 }
 
 /*
     vPort_Init: 
-    Tx & Rx of UART are routed to P0.0 and P0.1, respectively
-    crossbar enabled (XBARE), weak pull-ups enabled 
-    P0.0 configured as push-pull output, P0.1 as open-drain (input)  
+    crossbar enabled (XBARE), weak pull-ups enabled.
+    P0.0-7 configured as open-drain (default). The data (P0) to/from LCD is 
+    controlled through lcd module. 
+    P1.0-2 configured as push-pull output, P1.3-7 configured as open-drain. 
+    P1.7 as pushbutton (open-drain) on C8051F005. 
+
 
     parameters: none 
     return    : none 
  */
 void vPort_Init(void){
 
-    XBR0|=0x04;                         // UARTEN=1       
-    XBR2|=0x40;                         // WEAKPUD=0 and XBARE=1 
-    PRT0CF|=0x01;                       // P0.0 push-pull and P0.1 open-drain  
+    XBR2|=0x40;                         // WEAKPUD=0 and XBARE=1
+    // P1.0-2 as push-pull and P1.3-7 as open-drain  
+    PRT1CF|=0x07; 
 
 }
 
 /*
     vTimer2_Init: 
-    uses SYSCLK as timebase (CKCON.5)
-    RCLK=TCLK=1 where timer 2 is in baud generator mode  
+    uses SYSCLK/12 as timebase (T2M-CKCON.5) 
+    C/T2=0 (T2CON.2) timer 2 configured as timer (clock defined by T2M)  
 
     parameters: none 
     return    : none 
 */
 void vTimer2_Init(void){
 
-    CKCON|=0x20;                        // T2M=1 
-    T2CON|=0x30;                        // RCLK=TCLK=1 
-    
-    RCAP2L=0x98;                        // values from config2 tool 
-    RCAP2H=0xFF; 
-    
+    CKCON&=~0x20;                       // T2M=0 
+
+    RCAP2=-(SYSCLK/12/1000);            // timer 2 overflow rate 1KHz
     T2=RCAP2;                           // initialize T2 value 
 
-}
-
-/*
-    vUART_Init: 
-    UART operated in mode 1 asynchronous 8-bit variable baud rate using timer 
-    2 overflow; UART reception enabled 
-
-    parameters: none 
-    return    : none 
-*/
-void vUART_Init(void){
-
-    // SM0-1=01 mode 1 8-bit UART, variable baud rate; REN=1 receive enable  
-    SCON|=0x50; 
-
-    ES=1;                               // enable serial port (UART) interrupt
-    TX_Ready=1;                         // UART ready to transmit 
+    ET2=0;                              // disable T2 interrupts if enabled
 
 }
-
