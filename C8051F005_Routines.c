@@ -16,29 +16,12 @@
 /*
     function prototypes 
 */
-void vGlobalInterrupts(bit status); 
 void vTimer2(bit status); 
+void vWait_ms(unsigned int ms); 
 
 /*
     routines 
 */
-/*
-    vGlobalInterrupts: 
-    enables/disables global interrupts (EA). 
-
-    parameters: status 
-        bit status: ON to enable , OFF to disable. 
-    return    : none 
-*/
-void vGlobalInterrupts(bit status){
-
-    if(status==ON)
-        EA=ON; 
-    else 
-        EA=OFF; 
-
-}
-
 /*
     vTimer2: 
     start/stop timer 2 (TR2). 
@@ -53,6 +36,31 @@ void vTimer2(bit status){
         TR2=ON; 
     else 
         TR2=OFF; 
+
+}
+
+/* 
+    vWait_ms: 
+    this routine generates a delay of <ms> milliseconds. 
+
+    parameters: ms 
+        unsigned int ms: number of milliseconds of delay (0 to 65535).  
+    return    : none 
+*/
+void vWait_ms(unsigned int ms){
+
+    vTimer2(ON);                        // start timer 2 
+
+    while(ms){
+        TF2=0;                          // clear timer 2 flag 
+
+        while(!TF2)                     // wait until timer 2 overflows 
+            ;  
+
+        ms--;                           // decrement ms 
+    }
+
+    vTimer2(OFF);                       // stop timer 2 
 
 }
 
