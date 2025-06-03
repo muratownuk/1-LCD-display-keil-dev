@@ -16,29 +16,19 @@
 /*
     function prototypes 
 */
-void vGlobalInterrupts(bit status); 
 void vTimer2(bit status); 
+void vWait_ms(unsigned int ms); 
+float fADC0_temp(void); 
+
+/*
+    global variables 
+*/
+    long accumulator=0; 
+    int count=INT_DEC; 
 
 /*
     routines 
 */
-/*
-    vGlobalInterrupts: 
-    enables/disables global interrupts (EA). 
-
-    parameters: status 
-        bit status: ON to enable , OFF to disable. 
-    return    : none 
-*/
-void vGlobalInterrupts(bit status){
-
-    if(status==ON)
-        EA=ON; 
-    else 
-        EA=OFF; 
-
-}
-
 /*
     vTimer2: 
     start/stop timer 2 (TR2). 
@@ -56,4 +46,69 @@ void vTimer2(bit status){
 
 }
 
+/* 
+    vWait_ms: 
+    this routine generates a delay of <ms> milliseconds. 
+
+    parameters: ms 
+        unsigned int ms: number of milliseconds of delay (0 to 65535).  
+    return    : none 
+*/
+void vWait_ms(unsigned int ms){
+
+    vTimer2(ON);                        // start timer 2 
+
+    while(ms){
+        TF2=0;                          // clear timer 2 flag 
+
+        while(!TF2)                     // wait until timer 2 overflows 
+            ;  
+
+        ms--;                           // decrement ms 
+    }
+
+    vTimer2(OFF);                       // stop timer 2 
+
+}
+
+
+/*
+    fADC0_temp: 
+    this routine measures, samples and returns internal temperature (in 
+    degrees celsius) of the device VIA ADC0. 
+
+    parameters: none 
+
+    return    : temp_measure 
+        float temp_measure: the resulting temperature measurement.  
+*/
+float fADC0_temp(void){ 
+
+    float temp_measure; 
+
+    do{ 
+
+        ADBUSY=1;                       // start ADC conversion 
+
+        while(ADBUSY)
+            ;                           // let conversion complete 
+
+        // integrate & decimate 
+        accumulator+=ADC0; 
+        count--; 
+
+        if(count==0){                   // convert raw result to celsius 
+
+            temp_measure=accumulator>>12; 
+            temp_measure=(temp_measure/131072*5-0.776)/0.00286; 
+            accumulator=0;              // reset accumulator 
+            count=INT_DEC;              // reset integrate-decimate counter 
+          
+        }
+
+    } while(count!=0); 
+
+    return temp_measure; 
+
+}
 
