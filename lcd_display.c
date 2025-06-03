@@ -14,12 +14,21 @@
 #include "lcd.h" 
 
 
-
-
-
-
 void main(void){
 
+    
+    vWatchdog(OFF);                     // disable watchdog timer 
+    vOSC_Init();                        // initialize device oscillator (2MHz) 
+    vPort_Init();                       // initialize ports 0 and 1 
+    vTimer2_Init();                     // initialize timer 2 for delay 
+    vADC0_Init();                       // initialize temp. sensor and ADC0 
+    LcdInit();                          // initialize the LCD display 
 
+    while(1){
+
+        // forever loop write code here... 
+
+    }
 
 }
+
