@@ -18,6 +18,13 @@
 */
 void vTimer2(bit status); 
 void vWait_ms(unsigned int ms); 
+float fADC0_temp(void); 
+
+/*
+    global variables 
+*/
+    long accumulator=0; 
+    int count=INT_DEC; 
 
 /*
     routines 
@@ -64,4 +71,44 @@ void vWait_ms(unsigned int ms){
 
 }
 
+
+/*
+    fADC0_temp: 
+    this routine measures, samples and returns internal temperature (in 
+    degrees celsius) of the device VIA ADC0. 
+
+    parameters: none 
+
+    return    : temp_measure 
+        float temp_measure: the resulting temperature measurement.  
+*/
+float fADC0_temp(void){ 
+
+    float temp_measure; 
+
+    do{ 
+
+        ADBUSY=1;                       // start ADC conversion 
+
+        while(ADBUSY)
+            ;                           // let conversion complete 
+
+        // integrate & decimate 
+        accumulator+=ADC0; 
+        count--; 
+
+        if(count==0){                   // convert raw result to celsius 
+
+            temp_measure=accumulator>>12; 
+            temp_measure=(temp_measure/131072*5-0.776)/0.00286; 
+            accumulator=0;              // reset accumulator 
+            count=INT_DEC;              // reset integrate-decimate counter 
+          
+        }
+
+    } while(count!=0); 
+
+    return temp_measure; 
+
+}
 
