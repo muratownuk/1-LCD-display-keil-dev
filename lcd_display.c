@@ -11,7 +11,7 @@
 #include "on_off.h" 
 #include "C8051F005_Init.h" 
 #include "C8051F005_Routines.h" 
-#include "lcd.h" 
+#include "./misc/lcd-files/lcd.h" 
 #include <STDIO.H> 
 
 /*
