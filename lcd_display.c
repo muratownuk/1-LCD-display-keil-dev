@@ -14,11 +14,26 @@
 #include "lcd.h" 
 #include <STDIO.H> 
 
-void main(void){
+/*
+    defines 
+*/
+#define     PRESSED     1 
 
-    float fTemperature;                 // temperature value 
-    char caTemperature[6];              // char temperature array 
-    caTemperature[0]='\0';              // null terminate the character array 
+/*
+    function prototypes 
+*/
+void vDisplay_temp(float temperature, bit cf);
+
+/*
+    sbit definitions 
+*/
+SI_SBIT(button, P1, 7); 
+
+void main(void){
+    
+    SI_BIT(celsius_fahrenheit);         // flag to swap between C/F 
+    
+    celsius_fahrenheit=0;               // 0=celsius; 1=fahrenheit 
 
     vWatchdog(OFF);                     // disable watchdog timer 
     vOSC_Init();                        // initialize device oscillator (2MHz) 
@@ -27,23 +42,78 @@ void main(void){
     vADC0_Init();                       // initialize temp. sensor and ADC0 
     LcdInit();                          // initialize the LCD display 
 
-    while(1){
+    while(1){ 
 
-        fTemperature=fADC0_temp(); 
+        if(button==PRESSED){ 
 
-        sprintf(caTemperature, "%.1f", fTemperature);
+            celsius_fahrenheit=~celsius_fahrenheit; 
+
+            // simple debounce
+            while(button==PRESSED)
+                ; 
+            vWait_ms(DELAY);  
+
+        } 
+
+        vDisplay_temp(fADC0_temp(), celsius_fahrenheit); 
+
+    }
+
+}
+
+/*
+    routines: 
+*/
+/*
+    vDisplay_temp: 
+    this routine displays the temperature in celsius (default) or fahrenheit (
+    doing the necessary conversion). 
+
+    parameters: temperature, cf 
+        float temperature: the temperature to be displayed (default=celsius).
+
+        bit   cf         : celsius-fahrenheit flag for display method.  
+
+    return    : none 
+*/ 
+void vDisplay_temp(float temperature, bit cf){
+    
+    static float fTemperature; 
+    static char sTemperature[6];        // temperature string (char array) 
+    sTemperature[0]='\0';               // null terminate the string 
+
+    if(!cf){                            // display in celsius 
+
+        fTemperature=temperature;       // no need for conversion 
+
+        sprintf(sTemperature, "%.1f", fTemperature); 
         
         LcdWriteString("Temp: "); 
-        LcdWriteString(&caTemperature); 
+        LcdWriteString(&sTemperature); 
         LcdWriteChar(' '); 
         LcdWriteChar(0xDF);             // degrees symbol 
         LcdWriteChar('C');              // celsius 
 
         LcdClear(); 
 
-    }
+    } 
+    else{                               // display in fahrenheit 
+
+        // convert from celsius to fahrenheit 
+        fTemperature=(temperature*(9/5.0))+32;  
+
+        sprintf(sTemperature, "%.1f", fTemperature); 
+        
+        LcdWriteString("Temp: "); 
+        LcdWriteString(&sTemperature); 
+        LcdWriteChar(' '); 
+        LcdWriteChar(0xDF);             // degrees symbol 
+        LcdWriteChar('F');              // fahrenheit  
+
+        LcdClear(); 
+
+    } 
 
 }
-
 
 
