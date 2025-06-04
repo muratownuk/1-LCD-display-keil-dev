@@ -97,18 +97,14 @@ float fADC0_temp(void){
         accumulator+=ADC0; 
         count--; 
 
-        if(count==0){                   // convert raw result to celsius 
-
-            temp_measure=accumulator>>12; 
-            temp_measure=(temp_measure/131072*5-0.776)/0.00286; 
-            accumulator=0;              // reset accumulator 
-            count=INT_DEC;              // reset integrate-decimate counter 
-          
-        }
-
     } while(count!=0); 
+
+    // convert raw result to celsius 
+    temp_measure=accumulator>>12; 
+    temp_measure=(temp_measure/131072*5-0.776)/0.00286; 
+    accumulator=0;              // reset accumulator 
+    count=INT_DEC;              // reset integrate-decimate counter 
 
     return temp_measure; 
 
 }
-
