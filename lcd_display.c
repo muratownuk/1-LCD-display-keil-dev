@@ -23,6 +23,7 @@
     function prototypes 
 */
 void vDisplay_temp(float temperature, bit cf);
+void vWelcome_msg(void); 
 
 /*
     sbit definitions 
@@ -43,6 +44,11 @@ void main(void){
     vTimer2_Init();                     // initialize timer 2 for delay 
     vADC0_Init();                       // initialize temp. sensor and ADC0 
     LcdInit();                          // initialize the LCD display 
+
+    // welcome message for 3 seconds on start-up 
+    vWelcome_msg(); 
+    vWait_ms(3000);                     // 3 second delay 
+    LcdClear(); 
 
     while(1){ 
 
@@ -94,9 +100,9 @@ void vDisplay_temp(float temperature, bit cf){
 
         sprintf(sTemperature, "%.1f", fTemperature); 
         
-        LcdWriteString("Temp: "); 
+        LcdWriteString("T: "); 
         LcdWriteString(&sTemperature); 
-        LcdWriteChar(' '); 
+        LcdMoveCursor(1, 1);            // move cursor to 2nd line (2nd col.) 
         LcdWriteChar(0xDF);             // degrees symbol 
         LcdWriteChar('C');              // celsius 
  
@@ -108,12 +114,31 @@ void vDisplay_temp(float temperature, bit cf){
 
         sprintf(sTemperature, "%.1f", fTemperature); 
         
-        LcdWriteString("Temp: "); 
+        LcdWriteString("T: "); 
         LcdWriteString(&sTemperature); 
-        LcdWriteChar(' '); 
+        LcdMoveCursor(1, 1);            // move cursor to 2nd line (2nd col.) 
         LcdWriteChar(0xDF);             // degrees symbol 
         LcdWriteChar('F');              // fahrenheit  
 
     } 
 
 }
+
+/*
+    vWelcome_msg: 
+    displays welcome (once) on LCD display during start-up. 
+
+    parameters: none 
+    return    : none 
+*/
+void vWelcome_msg(void){ 
+
+    LcdMoveCursor(0, 4);                // move cursor to row 1 col. 5
+    LcdWriteString("WELC");             
+    LcdMoveCursor(1, 0);                // move cursor to row 2 col. 1 
+    LcdWriteString("OME!"); 
+
+}
+
+
+
