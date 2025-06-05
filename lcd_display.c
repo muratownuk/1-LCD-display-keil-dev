@@ -30,6 +30,8 @@ void vDisplay_temp(float temperature, bit cf);
 SI_SBIT(button, P1, 7); 
 
 void main(void){
+
+    float result; 
     
     SI_BIT(celsius_fahrenheit);         // flag to swap between C/F 
     
@@ -55,7 +57,11 @@ void main(void){
 
         } 
 
-        vDisplay_temp(fADC0_temp(), celsius_fahrenheit); 
+        result=fADC0_temp(); 
+
+        LcdClear(); 
+
+        vDisplay_temp(result, celsius_fahrenheit); 
 
     }
 
@@ -93,9 +99,7 @@ void vDisplay_temp(float temperature, bit cf){
         LcdWriteChar(' '); 
         LcdWriteChar(0xDF);             // degrees symbol 
         LcdWriteChar('C');              // celsius 
-
-        LcdClear(); 
-
+ 
     } 
     else{                               // display in fahrenheit 
 
@@ -110,10 +114,6 @@ void vDisplay_temp(float temperature, bit cf){
         LcdWriteChar(0xDF);             // degrees symbol 
         LcdWriteChar('F');              // fahrenheit  
 
-        LcdClear(); 
-
     } 
 
 }
-
-
