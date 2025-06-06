@@ -1,4 +1,4 @@
-# 1-serial-com-rs232-keil-dev
+# 1-LCD-display-keil-dev
 
 Please read the 'program-specification.txt' for more information about this
 project.
