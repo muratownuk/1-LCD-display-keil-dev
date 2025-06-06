@@ -10,10 +10,25 @@
       - port
           - enable cross-bar (XBARE) for output and weak pull-ups
           - port 0 
-            configure P0.0-2 as push-pull and P0.3-7 as open-drain.
+            configure P0.0-0 as open-drain.
           - port 1
-            configure P1.0-7 as open-drain. 
-
-
-
+            configure P1.0-2 as push-pull and P1.3-7 as open-drain. 
+      - Timer 2 
+          - configure timer 2 with overflow rate of 1KHz using SYSCLK/12 as 
+            timebase. This is used to generate delays. 
+      - ADC0 
+          - enable temperature sensor. generate bias and reference voltage for 
+            the ADC. 
+          - select temperature sensor from the analog multiplexer. 
+          - configure and enable ADC; data left-justified. Amplifier gain of 
+            unity. 
+  - Routines 
+    - use timer 2 to generate delays in increments of ms (milliseconds). 
+    - start ADC0 conversion, integrate-decimate the result for accurate 
+      measurement. convert the raw ADC temperature result to celsius-default. 
+  - use button (P1.7) to control celsius-fahrenheit flag for temperature 
+    display method. create a simple debounce for the button. 
+  - welcome message for 3 seconds. 
+  - display temperature result depending on the celsius-fahrenheit flag. 
+    convert to fahrenheit (celsius-default) if requested. 
 
